@@ -12,6 +12,7 @@ all =
         [ test "Just `result` is found" <|
             \_ ->
                 let
+                    json : String
                     json =
                         """
                     {
@@ -24,6 +25,7 @@ all =
         , test "Failed with reason" <|
             \_ ->
                 let
+                    json : String
                     json =
                         """
                     {
@@ -37,6 +39,7 @@ all =
         , test "Failed with data mismatch" <|
             \_ ->
                 let
+                    json : String
                     json =
                         """
                     {
