@@ -1,16 +1,50 @@
 module Tests exposing (all)
 
 import Expect
+import Json.Decode exposing (decodeString)
+import Lib exposing (FailureReason(..), TransactionResult(..), transactionDecoder)
 import Test exposing (Test, describe, test)
 
 
 all : Test
 all =
-    describe "A Test Suite"
-        [ test "Addition" <|
+    describe "TransactionResult Decoder"
+        [ test "Just `result` is found" <|
             \_ ->
-                Expect.equal 10 (3 + 7)
-        , test "String.left" <|
+                let
+                    json =
+                        """
+                    {
+                    "result": "completed"
+                    }
+                """
+                in
+                decodeString transactionDecoder json
+                    |> Expect.equal (Ok AuthCompleted)
+        , test "Failed with reason" <|
             \_ ->
-                Expect.equal "a" (String.left 1 "abcdefg")
+                let
+                    json =
+                        """
+                    {
+                    "result": "failed",
+                    "reason": "unsuccessful"
+                    }
+                """
+                in
+                decodeString transactionDecoder json
+                    |> Expect.equal (Ok <| AuthFailed Unsuccessful)
+        , test "Failed with data mismatch" <|
+            \_ ->
+                let
+                    json =
+                        """
+                    {
+                    "result": "failed_and_max_attempts_reached",
+                    "reason": "data_mismatch"
+                    }
+                """
+                in
+                decodeString transactionDecoder json
+                    |> Expect.equal (Ok <| AuthFailedAndMaxAttemptsReached DataMismatch)
         ]
